@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import '../../core/theme/theme_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/glass_card.dart';
@@ -21,8 +23,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = context.watch<ThemeProvider>().isDarkMode;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -33,7 +37,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Profile', style: AppTextStyles.h1),
+                    Text('Profile', style: context.textStyles.h1),
                     const SizedBox(height: 20),
                     // User card
                     _buildUserCard()
@@ -48,21 +52,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .slideY(begin: 0.05),
                     const SizedBox(height: 24),
                     // Connected devices
-                    Text('Connected Devices', style: AppTextStyles.h4),
+                    Text('Connected Devices', style: context.textStyles.h4),
                     const SizedBox(height: 12),
                     _buildConnectedDevices()
                         .animate()
                         .fadeIn(delay: 200.ms),
                     const SizedBox(height: 24),
                     // AI Coach prefs
-                    Text('AI Coach', style: AppTextStyles.h4),
+                    Text('AI Coach', style: context.textStyles.h4),
                     const SizedBox(height: 12),
                     _buildAICoachSection(context)
                         .animate()
                         .fadeIn(delay: 300.ms),
                     const SizedBox(height: 24),
                     // Settings
-                    Text('Settings', style: AppTextStyles.h4),
+                    Text('Settings', style: context.textStyles.h4),
                     const SizedBox(height: 12),
                     _buildSettings()
                         .animate()
@@ -92,7 +96,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             width: 70,
             height: 70,
             decoration: BoxDecoration(
-              gradient: AppColors.cyanPurpleGradient,
+              gradient: context.colors.cyanPurpleGradient,
               borderRadius: BorderRadius.circular(20),
             ),
             child: const Center(
@@ -114,14 +118,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Text(_user.name, style: AppTextStyles.h3),
+                    Text(_user.name, style: context.textStyles.h3),
                     const SizedBox(width: 8),
                     if (_user.membershipTier == 'pro')
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 3),
                         decoration: BoxDecoration(
-                          gradient: AppColors.cyanPurpleGradient,
+                          gradient: context.colors.cyanPurpleGradient,
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: const Text(
@@ -139,13 +143,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(_user.email,
-                    style: AppTextStyles.bodySmall
-                        .copyWith(color: AppColors.textMuted)),
+                    style: context.textStyles.bodySmall
+                        .copyWith(color: context.colors.textMuted)),
                 const SizedBox(height: 8),
                 Text(
                   _user.fitnessGoal,
-                  style: AppTextStyles.labelSmall
-                      .copyWith(color: AppColors.primary),
+                  style: context.textStyles.labelSmall
+                      .copyWith(color: context.colors.primary),
                 ),
               ],
             ),
@@ -156,12 +160,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: AppColors.surface,
+                color: context.colors.surface,
                 borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: AppColors.border),
+                border: Border.all(color: context.colors.border),
               ),
-              child: const Icon(Icons.edit_outlined,
-                  color: AppColors.textSecondary, size: 16),
+              child: Icon(Icons.edit_outlined,
+                  color: context.colors.textSecondary, size: 16),
             ),
           ),
         ],
@@ -185,9 +189,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 margin: EdgeInsets.only(right: e.key < 2 ? 10 : 0),
                 padding: const EdgeInsets.all(14),
                 decoration: BoxDecoration(
-                  color: AppColors.surface,
+                  color: context.colors.surface,
                   borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.border),
+                  border: Border.all(color: context.colors.border),
                 ),
                 child: Column(
                   children: [
@@ -197,12 +201,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           fontSize: 22,
                           fontWeight: FontWeight.w800,
                           color: [
-                            AppColors.primary,
-                            AppColors.accentOrange,
-                            AppColors.accentGreen,
+                            context.colors.primary,
+                            context.colors.accentOrange,
+                            context.colors.accentGreen,
                           ][e.key],
                         )),
-                    Text(e.value.$2, style: AppTextStyles.caption),
+                    Text(e.value.$2, style: context.textStyles.caption),
                   ],
                 ),
               ),
@@ -214,8 +218,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Widget _buildConnectedDevices() {
     final devices = [
-      ('Apple Watch Series 9', Icons.watch_rounded, AppColors.primary),
-      ('Samsung Galaxy Fit', Icons.phone_android_rounded, AppColors.secondary),
+      ('Apple Watch Series 9', Icons.watch_rounded, context.colors.primary),
+      ('Samsung Galaxy Fit', Icons.phone_android_rounded, context.colors.secondary),
     ];
     return GlassCard(
       child: Column(
@@ -239,18 +243,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: Text(e.value.$1, style: AppTextStyles.labelLarge),
+                      child: Text(e.value.$1, style: context.textStyles.labelLarge),
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppColors.accentGreen.withOpacity(0.12),
+                        color: context.colors.accentGreen.withOpacity(0.12),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text('Connected',
-                          style: AppTextStyles.caption
-                              .copyWith(color: AppColors.accentGreen)),
+                          style: context.textStyles.caption
+                              .copyWith(color: context.colors.accentGreen)),
                     ),
                   ],
                 ),
@@ -269,23 +273,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
             Icons.auto_awesome_rounded,
             'AI Chat',
             'Ask your coach anything',
-            AppColors.primary,
+            context.colors.primary,
             () => Navigator.pushNamed(context, AppRoutes.aiCoachChat),
           ),
-          const Divider(height: 20),
+          Divider(height: 20),
           _buildTileButton(
             Icons.mic_rounded,
             'Voice Mode',
             'Real-time voice coaching',
-            AppColors.secondary,
+            context.colors.secondary,
             () => Navigator.pushNamed(context, AppRoutes.aiVoiceMode),
           ),
-          const Divider(height: 20),
+          Divider(height: 20),
           _buildTileButton(
             Icons.calendar_month_rounded,
             'Rebuild AI Plan',
             'Adjust your fitness program',
-            AppColors.accentGreen,
+            context.colors.accentGreen,
             () => Navigator.pushNamed(context, AppRoutes.aiPlanGeneration),
           ),
         ],
@@ -303,64 +307,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.textMuted.withOpacity(0.1),
+                  color: context.colors.textMuted.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.notifications_outlined,
-                    color: AppColors.textSecondary, size: 18),
+                child: Icon(Icons.notifications_outlined,
+                    color: context.colors.textSecondary, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text('Notifications',
-                    style: AppTextStyles.labelLarge),
+                    style: context.textStyles.labelLarge),
               ),
               Switch.adaptive(
                 value: _notificationsEnabled,
                 onChanged: (v) =>
                     setState(() => _notificationsEnabled = v),
-                activeColor: AppColors.primary,
+                activeColor: context.colors.primary,
               ),
             ],
           ),
-          const Divider(height: 20),
+          Divider(height: 20),
           Row(
             children: [
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.textMuted.withOpacity(0.1),
+                  color: context.colors.textMuted.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.dark_mode_outlined,
-                    color: AppColors.textSecondary, size: 18),
+                child: Icon(Icons.dark_mode_outlined,
+                    color: context.colors.textSecondary, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(
-                  child: Text('Dark Mode', style: AppTextStyles.labelLarge)),
+                  child: Text('Dark Mode', style: context.textStyles.labelLarge)),
               Switch.adaptive(
-                value: _darkMode,
-                onChanged: (v) => setState(() => _darkMode = v),
-                activeColor: AppColors.primary,
+                value: isDark,
+                onChanged: (v) => context.read<ThemeProvider>().toggleTheme(),
+                activeColor: context.colors.primary,
               ),
             ],
           ),
-          const Divider(height: 20),
+          Divider(height: 20),
           Row(
             children: [
               Container(
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
-                  color: AppColors.textMuted.withOpacity(0.1),
+                  color: context.colors.textMuted.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: const Icon(Icons.straighten_rounded,
-                    color: AppColors.textSecondary, size: 18),
+                child: Icon(Icons.straighten_rounded,
+                    color: context.colors.textSecondary, size: 18),
               ),
               const SizedBox(width: 12),
               Expanded(
-                  child: Text('Units', style: AppTextStyles.labelLarge)),
+                  child: Text('Units', style: context.textStyles.labelLarge)),
               GestureDetector(
                 onTap: () => setState(() =>
                     _units = _units == 'Metric' ? 'Imperial' : 'Metric'),
@@ -368,23 +372,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppColors.surface,
+                    color: context.colors.surface,
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: AppColors.border),
+                    border: Border.all(color: context.colors.border),
                   ),
                   child: Text(_units,
-                      style: AppTextStyles.labelMedium
-                          .copyWith(color: AppColors.primary)),
+                      style: context.textStyles.labelMedium
+                          .copyWith(color: context.colors.primary)),
                 ),
               ),
             ],
           ),
-          const Divider(height: 20),
+          Divider(height: 20),
           _buildTileButton(
             Icons.workspace_premium_rounded,
             'Upgrade to Aura Pro',
             'Unlock all features',
-            AppColors.accentOrange,
+            context.colors.accentOrange,
             () => Navigator.pushNamed(context, AppRoutes.subscription),
           ),
         ],
@@ -412,15 +416,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title, style: AppTextStyles.labelLarge),
+                Text(title, style: context.textStyles.labelLarge),
                 Text(subtitle,
-                    style: AppTextStyles.caption
-                        .copyWith(color: AppColors.textMuted)),
+                    style: context.textStyles.caption
+                        .copyWith(color: context.colors.textMuted)),
               ],
             ),
           ),
-          const Icon(Icons.chevron_right_rounded,
-              color: AppColors.textMuted, size: 20),
+          Icon(Icons.chevron_right_rounded,
+              color: context.colors.textMuted, size: 20),
         ],
       ),
     );
@@ -433,20 +437,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppColors.accentRed.withOpacity(0.08),
+          color: context.colors.accentRed.withOpacity(0.08),
           borderRadius: BorderRadius.circular(16),
           border:
-              Border.all(color: AppColors.accentRed.withOpacity(0.3)),
+              Border.all(color: context.colors.accentRed.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.logout_rounded,
-                color: AppColors.accentRed, size: 18),
+            Icon(Icons.logout_rounded,
+                color: context.colors.accentRed, size: 18),
             const SizedBox(width: 8),
             Text('Sign Out',
-                style: AppTextStyles.labelLarge
-                    .copyWith(color: AppColors.accentRed)),
+                style: context.textStyles.labelLarge
+                    .copyWith(color: context.colors.accentRed)),
           ],
         ),
       ),

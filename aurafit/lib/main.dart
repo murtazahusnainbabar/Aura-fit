@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 
 import 'core/constants/app_routes.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_provider.dart';
 import 'main_screen.dart';
 
 // Import all screens for routing
@@ -23,8 +24,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
-        // Add providers here later
-        Provider(create: (_) => () {}),
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
       ],
       child: const AuraFitApp(),
     ),
@@ -36,27 +36,31 @@ class AuraFitApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AuraFit',
-      debugShowCheckedModeBanner: false,
-      theme: AppTheme.darkTheme,
-      initialRoute: AppRoutes.main,
-      routes: {
-        AppRoutes.main: (context) => const MainScreen(),
-        AppRoutes.home: (context) => const HomeScreen(),
-        AppRoutes.workoutLibrary: (context) => const WorkoutLibraryScreen(),
-        // Note: For screens requiring arguments (like WorkoutDetailScreen),
-        // we handle them via onGenerateRoute or extract arguments in the build method.
-        AppRoutes.workoutDetail: (context) => const WorkoutDetailScreen(), 
-        AppRoutes.liveWorkout: (context) => const LiveWorkoutScreen(),
-        AppRoutes.workoutCompletion: (context) => const WorkoutCompletionScreen(),
-        AppRoutes.aiPlanGeneration: (context) => const AIPlanGenerationScreen(),
-        AppRoutes.aiCoachChat: (context) => const AiCoachChatScreen(),
-        AppRoutes.aiVoiceMode: (context) => const AiVoiceModeScreen(),
-        AppRoutes.analytics: (context) => const AnalyticsScreen(),
-        AppRoutes.notifications: (context) => const NotificationsScreen(),
-        AppRoutes.profile: (context) => const ProfileScreen(),
-        AppRoutes.subscription: (context) => const SubscriptionScreen(),
+    return Consumer<ThemeProvider>(
+      builder: (context, themeProvider, child) {
+        return MaterialApp(
+          title: 'AuraFit',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.lightTheme,
+          darkTheme: AppTheme.darkTheme,
+          themeMode: themeProvider.themeMode,
+          initialRoute: AppRoutes.main,
+          routes: {
+            AppRoutes.main: (context) => const MainScreen(),
+            AppRoutes.home: (context) => const HomeScreen(),
+            AppRoutes.workoutLibrary: (context) => const WorkoutLibraryScreen(),
+            AppRoutes.workoutDetail: (context) => const WorkoutDetailScreen(), 
+            AppRoutes.liveWorkout: (context) => const LiveWorkoutScreen(),
+            AppRoutes.workoutCompletion: (context) => const WorkoutCompletionScreen(),
+            AppRoutes.aiPlanGeneration: (context) => const AIPlanGenerationScreen(),
+            AppRoutes.aiCoachChat: (context) => const AiCoachChatScreen(),
+            AppRoutes.aiVoiceMode: (context) => const AiVoiceModeScreen(),
+            AppRoutes.analytics: (context) => const AnalyticsScreen(),
+            AppRoutes.notifications: (context) => const NotificationsScreen(),
+            AppRoutes.profile: (context) => const ProfileScreen(),
+            AppRoutes.subscription: (context) => const SubscriptionScreen(),
+          },
+        );
       },
     );
   }
