@@ -50,7 +50,7 @@ class AuraFitApp extends StatelessWidget {
         AppRoutes.workoutDetail: (context) => const WorkoutDetailScreen(), 
         AppRoutes.liveWorkout: (context) => const LiveWorkoutScreen(),
         AppRoutes.workoutCompletion: (context) => const WorkoutCompletionScreen(),
-        AppRoutes.aiPlanGeneration: (context) => const AiPlanGenerationScreen(),
+        AppRoutes.aiPlanGeneration: (context) => const AIPlanGenerationScreen(),
         AppRoutes.aiCoachChat: (context) => const AiCoachChatScreen(),
         AppRoutes.aiVoiceMode: (context) => const AiVoiceModeScreen(),
         AppRoutes.analytics: (context) => const AnalyticsScreen(),

@@ -1,3 +1,5 @@
+import 'exercise.dart';
+
 class Workout {
   final String id;
   final String title;
