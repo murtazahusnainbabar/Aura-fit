@@ -195,3 +195,30 @@ class AppTextStylesExtension extends ThemeExtension<AppTextStylesExtension> {
 extension AppTextStylesExtensionHelper on BuildContext {
   AppTextStylesExtension get textStyles => Theme.of(this).extension<AppTextStylesExtension>()!;
 }
+
+/// Static alias that stays in sync with the current theme.
+class AppTextStyles {
+  static AppTextStylesExtension _current =
+      AppTextStylesExtension.fromColors(AppColorsExtension.dark);
+
+  static void update(bool isDarkMode) {
+    final colors = isDarkMode ? AppColorsExtension.dark : AppColorsExtension.light;
+    _current = AppTextStylesExtension.fromColors(colors);
+  }
+
+  static TextStyle get displayLarge => _current.displayLarge;
+  static TextStyle get displayMedium => _current.displayMedium;
+  static TextStyle get h1 => _current.h1;
+  static TextStyle get h2 => _current.h2;
+  static TextStyle get h3 => _current.h3;
+  static TextStyle get h4 => _current.h4;
+  static TextStyle get bodyLarge => _current.bodyLarge;
+  static TextStyle get bodyMedium => _current.bodyMedium;
+  static TextStyle get bodySmall => _current.bodySmall;
+  static TextStyle get labelLarge => _current.labelLarge;
+  static TextStyle get labelMedium => _current.labelMedium;
+  static TextStyle get labelSmall => _current.labelSmall;
+  static TextStyle get caption => _current.caption;
+  static TextStyle get button => _current.button;
+  static TextStyle get buttonSmall => _current.buttonSmall;
+}

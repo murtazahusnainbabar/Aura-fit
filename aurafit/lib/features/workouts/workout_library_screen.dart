@@ -17,13 +17,15 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
   String _selectedCategory = WorkoutCategory.all;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String _duration = 'Any';
+  String _difficulty = 'Any';
 
   final List<String> _categories = [
     WorkoutCategory.all,
     WorkoutCategory.strength,
     WorkoutCategory.hiit,
-    WorkoutCategory.cardio,
     WorkoutCategory.yoga,
+    WorkoutCategory.recovery,
   ];
 
   List<Workout> get _filteredWorkouts {
@@ -33,7 +35,18 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
               w.category == _selectedCategory;
       final matchesSearch = _searchQuery.isEmpty ||
           w.title.toLowerCase().contains(_searchQuery.toLowerCase());
-      return matchesCategory && matchesSearch;
+      final matchesDuration = _duration == 'Any' ||
+          (_duration == '<30' && w.durationMinutes < 30) ||
+          (_duration == '30-45' &&
+              w.durationMinutes >= 30 &&
+              w.durationMinutes <= 45) ||
+          (_duration == '45+' && w.durationMinutes > 45);
+      final matchesDifficulty =
+          _difficulty == 'Any' || w.difficulty == _difficulty;
+      return matchesCategory &&
+          matchesSearch &&
+          matchesDuration &&
+          matchesDifficulty;
     }).toList();
   }
 
@@ -45,8 +58,11 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -59,21 +75,21 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                 children: [
                   Row(
                     children: [
-                      Text('Workouts', style: AppTextStyles.h1),
+                      Text('Workouts', style: textStyles.h1),
                       const Spacer(),
                       Container(
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 6),
                         decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.12),
+                          color: colors.primary.withOpacity(0.12),
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                              color: AppColors.primary.withOpacity(0.4)),
+                              color: colors.primary.withOpacity(0.4)),
                         ),
                         child: Text(
                           '${WorkoutData.workouts.length} Programs',
-                          style: AppTextStyles.labelSmall
-                              .copyWith(color: AppColors.primary),
+                          style: textStyles.labelSmall
+                              .copyWith(color: colors.primary),
                         ),
                       ),
                     ],
@@ -83,20 +99,20 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                   TextField(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _searchQuery = v),
-                    style: const TextStyle(
-                        color: AppColors.textPrimary, fontFamily: 'Inter'),
+                    style: TextStyle(
+                        color: colors.textPrimary, fontFamily: 'Inter'),
                     decoration: InputDecoration(
                       hintText: 'Search workouts…',
-                      prefixIcon: const Icon(Icons.search_rounded,
-                          color: AppColors.textMuted, size: 20),
+                      prefixIcon: Icon(Icons.search_rounded,
+                          color: colors.textMuted, size: 20),
                       suffixIcon: _searchQuery.isNotEmpty
                           ? GestureDetector(
                               onTap: () {
                                 _searchController.clear();
                                 setState(() => _searchQuery = '');
                               },
-                              child: const Icon(Icons.close_rounded,
-                                  color: AppColors.textMuted, size: 18),
+                              child: Icon(Icons.close_rounded,
+                                  color: colors.textMuted, size: 18),
                             )
                           : null,
                     ),
@@ -121,13 +137,13 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                                 horizontal: 16, vertical: 8),
                             decoration: BoxDecoration(
                               color: isSelected
-                                  ? AppColors.primary
-                                  : AppColors.surface,
+                                  ? colors.primary
+                                  : colors.surface,
                               borderRadius: BorderRadius.circular(20),
                               border: Border.all(
                                 color: isSelected
-                                    ? AppColors.primary
-                                    : AppColors.border,
+                                    ? colors.primary
+                                    : colors.border,
                               ),
                             ),
                             child: Text(
@@ -139,13 +155,68 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                                     ? FontWeight.w600
                                     : FontWeight.w400,
                                 color: isSelected
-                                    ? AppColors.background
-                                    : AppColors.textSecondary,
+                                    ? colors.background
+                                    : colors.textSecondary,
                               ),
                             ),
                           ),
                         );
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    height: 34,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: [
+                        ...['Any', '<30', '30-45', '45+'].map((d) {
+                          final selected = _duration == d;
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(d == 'Any' ? 'Duration' : '$d min'),
+                              selected: selected && d != 'Any',
+                              onSelected: (_) =>
+                                  setState(() => _duration = d),
+                            ),
+                          );
+                        }),
+                        ...['Any', 'Beginner', 'Intermediate', 'Advanced']
+                            .skip(1)
+                            .map((d) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 8),
+                            child: FilterChip(
+                              label: Text(d),
+                              selected: _difficulty == d,
+                              onSelected: (_) => setState(() {
+                                _difficulty =
+                                    _difficulty == d ? 'Any' : d;
+                              }),
+                            ),
+                          );
+                        }),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  GlassCard(
+                    onTap: () => Navigator.pushNamed(
+                        context, AppRoutes.aiPlanGeneration),
+                    child: Row(
+                      children: [
+                        Icon(Icons.auto_awesome_rounded,
+                            color: colors.primary),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text('AI-generated programs',
+                              style: textStyles.labelLarge),
+                        ),
+                        Text('Open',
+                            style: textStyles.caption
+                                .copyWith(color: colors.primary)),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -159,12 +230,12 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.search_off_rounded,
-                              color: AppColors.textMuted, size: 48),
+                          Icon(Icons.search_off_rounded,
+                              color: colors.textMuted, size: 48),
                           const SizedBox(height: 12),
                           Text('No workouts found',
-                              style: AppTextStyles.bodyMedium
-                                  .copyWith(color: AppColors.textMuted)),
+                              style: textStyles.bodyMedium
+                                  .copyWith(color: colors.textMuted)),
                         ],
                       ),
                     )
@@ -188,13 +259,16 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
 
   Widget _buildWorkoutListCard(
       BuildContext context, Workout workout, int index) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     final categoryColors = {
-      WorkoutCategory.hiit: AppColors.accentOrange,
-      WorkoutCategory.strength: AppColors.secondary,
-      WorkoutCategory.cardio: AppColors.primary,
-      WorkoutCategory.yoga: AppColors.accentGreen,
+      WorkoutCategory.hiit: colors.accentOrange,
+      WorkoutCategory.strength: colors.secondary,
+      WorkoutCategory.cardio: colors.primary,
+      WorkoutCategory.yoga: colors.accentGreen,
     };
-    final color = categoryColors[workout.category] ?? AppColors.primary;
+    final color = categoryColors[workout.category] ?? colors.primary;
 
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, AppRoutes.workoutDetail,
@@ -235,7 +309,7 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: Text(workout.category,
-                              style: AppTextStyles.caption
+                              style: textStyles.caption
                                   .copyWith(color: color)),
                         ),
                         if (workout.isFeatured) ...[
@@ -244,12 +318,12 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppColors.accentGreen.withOpacity(0.15),
+                              color: colors.accentGreen.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             child: Text('Featured',
-                                style: AppTextStyles.caption.copyWith(
-                                    color: AppColors.accentGreen)),
+                                style: textStyles.caption.copyWith(
+                                    color: colors.accentGreen)),
                           ),
                         ],
                       ],
@@ -257,30 +331,30 @@ class _WorkoutLibraryScreenState extends State<WorkoutLibraryScreen> {
                     const SizedBox(height: 6),
                     Text(
                       workout.title,
-                      style: AppTextStyles.h4,
+                      style: textStyles.h4,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        const Icon(Icons.timer_outlined,
-                            color: AppColors.textMuted, size: 12),
+                        Icon(Icons.timer_outlined,
+                            color: colors.textMuted, size: 12),
                         const SizedBox(width: 3),
                         Text('${workout.durationMinutes} min',
-                            style: AppTextStyles.caption),
+                            style: textStyles.caption),
                         const SizedBox(width: 12),
-                        const Icon(Icons.local_fire_department_outlined,
-                            color: AppColors.textMuted, size: 12),
+                        Icon(Icons.local_fire_department_outlined,
+                            color: colors.textMuted, size: 12),
                         const SizedBox(width: 3),
                         Text('${workout.calories} kcal',
-                            style: AppTextStyles.caption),
+                            style: textStyles.caption),
                         const SizedBox(width: 12),
                         Icon(Icons.signal_cellular_alt_rounded,
-                            color: AppColors.textMuted, size: 12),
+                            color: colors.textMuted, size: 12),
                         const SizedBox(width: 3),
                         Text(workout.difficulty,
-                            style: AppTextStyles.caption),
+                            style: textStyles.caption),
                       ],
                     ),
                   ],

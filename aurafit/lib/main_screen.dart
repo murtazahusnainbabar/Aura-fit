@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'core/auth/auth_provider.dart';
+import 'core/onboarding/onboarding_provider.dart';
+import 'core/constants/app_routes.dart';
 import 'core/theme/app_colors.dart';
 import 'core/widgets/bottom_nav_bar.dart';
 
@@ -18,6 +22,22 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final auth = context.read<AuthProvider>();
+      final onboarding = context.read<OnboardingProvider>();
+      if (!mounted) return;
+      if (!auth.isLoggedIn) {
+        Navigator.of(context).pushReplacementNamed(AppRoutes.welcome);
+      } else if (!onboarding.isComplete) {
+        Navigator.of(context)
+            .pushReplacementNamed(AppRoutes.personalization);
+      }
+    });
+  }
+
   final List<Widget> _screens = const [
     HomeScreen(),
     WorkoutLibraryScreen(),
@@ -29,7 +49,8 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: context.colors.background,
+      extendBody: true,
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,

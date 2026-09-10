@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
+import '../../core/constants/app_routes.dart';
 import '../../models/notification_item.dart';
 
 class NotificationsScreen extends StatefulWidget {
@@ -202,6 +203,22 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                   ),
                   const SizedBox(height: 6),
                   Text(timeAgo, style: AppTextStyles.caption),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pushNamed(
+                          context,
+                          AppRoutes.activityLogger,
+                        ),
+                        child: const Text('Log Water'),
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: const Text('Snooze 15m'),
+                      ),
+                    ],
+                  ),
                 ],
               ),
             ),

@@ -35,10 +35,10 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
   ];
 
   final List<String> _suggestions = [
-    'Show my weekly plan',
-    'What should I eat post-workout?',
-    'Adjust workout intensity',
-    'Voice mode',
+    'Adjust today\'s routine',
+    'Schedule leg day',
+    'Scan my form',
+    'Log water',
   ];
 
   void _sendMessage(String text) {
@@ -92,10 +92,12 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
         backgroundColor: AppColors.background,
         elevation: 0,
         titleSpacing: 0,
-        leading: GestureDetector(
-          onTap: () => Navigator.pop(context),
-          child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
-        ),
+        leading: Navigator.canPop(context)
+            ? GestureDetector(
+                onTap: () => Navigator.pop(context),
+                child: const Icon(Icons.arrow_back_ios_new_rounded, size: 18),
+              )
+            : const SizedBox(width: 8),
         title: Row(
           children: [
             Container(
@@ -141,12 +143,17 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
         ),
         actions: [
           IconButton(
+            icon: const Icon(Icons.photo_camera_outlined, color: AppColors.primary),
+            onPressed: () =>
+                Navigator.pushNamed(context, AppRoutes.aiVision),
+            tooltip: 'AI Vision',
+          ),
+          IconButton(
             icon: const Icon(Icons.mic_rounded, color: AppColors.primary),
             onPressed: () =>
                 Navigator.pushNamed(context, AppRoutes.aiVoiceMode),
             tooltip: 'Voice Mode',
           ),
-          const SizedBox(width: 8),
         ],
       ),
       body: Column(
@@ -179,10 +186,15 @@ class _AiCoachChatScreenState extends State<AiCoachChatScreen> {
                 separatorBuilder: (_, __) => const SizedBox(width: 8),
                 itemBuilder: (context, i) => GestureDetector(
                   onTap: () {
-                    if (_suggestions[i] == 'Voice mode') {
-                      Navigator.pushNamed(context, AppRoutes.aiVoiceMode);
+                    final chip = _suggestions[i];
+                    if (chip == 'Scan my form') {
+                      Navigator.pushNamed(context, AppRoutes.aiVision);
+                    } else if (chip == 'Log water') {
+                      Navigator.pushNamed(context, AppRoutes.activityLogger);
+                    } else if (chip == 'Schedule leg day') {
+                      Navigator.pushNamed(context, AppRoutes.reminders);
                     } else {
-                      _sendMessage(_suggestions[i]);
+                      _sendMessage(chip);
                     }
                   },
                   child: Container(

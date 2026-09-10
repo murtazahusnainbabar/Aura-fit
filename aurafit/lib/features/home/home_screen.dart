@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import '../../core/auth/auth_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/glass_card.dart';
-import '../../core/widgets/gradient_button.dart';
 import '../../core/constants/app_routes.dart';
+import '../../core/wellness/wellness_provider.dart';
 import '../../models/workout.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -12,8 +14,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     return Scaffold(
-      backgroundColor: AppColors.background,
+      backgroundColor: colors.background,
       body: SafeArea(
         child: CustomScrollView(
           physics: const BouncingScrollPhysics(),
@@ -32,7 +37,9 @@ class HomeScreen extends StatelessWidget {
                     const SizedBox(height: 24),
                     _buildQuickActions(context),
                     const SizedBox(height: 24),
-                    Text('Recommended for You', style: AppTextStyles.h3),
+                    _buildSchedule(context),
+                    const SizedBox(height: 24),
+                    Text('Recommended for You', style: textStyles.h3),
                     const SizedBox(height: 14),
                   ],
                 ),
@@ -59,20 +66,30 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  String _greeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
   Widget _buildHeader(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     return Row(
       children: [
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Good Morning, Alex 👋',
-              style: AppTextStyles.h2.copyWith(fontSize: 22),
+              '${_greeting()}, ${context.watch<AuthProvider>().user?.firstName ?? 'there'} 👋',
+              style: textStyles.h2.copyWith(fontSize: 22),
             ).animate().fadeIn(duration: 400.ms).slideX(begin: -0.1),
             const SizedBox(height: 4),
             Text(
               'Monday, Sep 8 · Ready to crush it?',
-              style: AppTextStyles.bodySmall,
+              style: textStyles.bodySmall,
             ).animate().fadeIn(delay: 100.ms),
           ],
         ),
@@ -83,15 +100,15 @@ class HomeScreen extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.surface,
+              color: colors.surface,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: AppColors.border),
+              border: Border.all(color: colors.border),
             ),
             child: Stack(
               children: [
-                const Center(
+                Center(
                   child: Icon(Icons.notifications_outlined,
-                      color: AppColors.textSecondary, size: 22),
+                      color: colors.textSecondary, size: 22),
                 ),
                 Positioned(
                   top: 10,
@@ -99,8 +116,8 @@ class HomeScreen extends StatelessWidget {
                   child: Container(
                     width: 8,
                     height: 8,
-                    decoration: const BoxDecoration(
-                      color: AppColors.primary,
+                    decoration: BoxDecoration(
+                      color: colors.primary,
                       shape: BoxShape.circle,
                     ),
                   ),
@@ -116,7 +133,7 @@ class HomeScreen extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: AppColors.cyanPurpleGradient,
+              gradient: colors.cyanPurpleGradient,
               borderRadius: BorderRadius.circular(14),
             ),
             child: const Center(
@@ -137,6 +154,9 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildActivityRings(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     return GlassCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,49 +166,64 @@ class HomeScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppColors.accentGreen.withOpacity(0.15),
+                  color: colors.accentGreen.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: AppColors.accentGreen.withOpacity(0.4)),
+                  border: Border.all(color: colors.accentGreen.withOpacity(0.4)),
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.local_fire_department_rounded,
-                        color: AppColors.accentGreen, size: 14),
+                    Icon(Icons.local_fire_department_rounded,
+                        color: colors.accentGreen, size: 14),
                     const SizedBox(width: 4),
                     Text('7-Day Streak!',
-                        style: AppTextStyles.labelMedium
-                            .copyWith(color: AppColors.accentGreen)),
+                        style: textStyles.labelMedium
+                            .copyWith(color: colors.accentGreen)),
                   ],
                 ),
               ),
               const Spacer(),
-              Text("Today's Activity", style: AppTextStyles.labelMedium),
+              Text("Today's Activity", style: textStyles.labelMedium),
             ],
           ),
           const SizedBox(height: 20),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+          Wrap(
+            alignment: WrapAlignment.spaceAround,
+            spacing: 8,
+            runSpacing: 16,
             children: [
               _buildRing(
+                context,
                 label: 'Active Cal',
                 value: '347',
                 unit: 'kcal',
                 progress: 0.67,
-                color: AppColors.accentOrange,
+                color: colors.accentOrange,
               ),
               _buildRing(
+                context,
                 label: 'Workout',
                 value: '28',
                 unit: 'min',
                 progress: 0.62,
-                color: AppColors.primary,
+                color: colors.primary,
               ),
               _buildRing(
+                context,
                 label: 'Water',
-                value: '1.8',
+                value: context.watch<WellnessProvider>().waterLiters.toStringAsFixed(1),
                 unit: 'L',
-                progress: 0.72,
-                color: AppColors.secondary,
+                progress: (context.watch<WellnessProvider>().waterLiters / 2.5)
+                    .clamp(0, 1),
+                color: colors.secondary,
+              ),
+              _buildRing(
+                context,
+                label: 'Sleep',
+                value: context.watch<WellnessProvider>().sleepHours.toStringAsFixed(1),
+                unit: 'h',
+                progress: (context.watch<WellnessProvider>().sleepHours / 8)
+                    .clamp(0, 1),
+                color: colors.primaryLight,
               ),
             ],
           ),
@@ -197,13 +232,17 @@ class HomeScreen extends StatelessWidget {
     ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.05);
   }
 
-  Widget _buildRing({
+  Widget _buildRing(
+    BuildContext context, {
     required String label,
     required String value,
     required String unit,
     required double progress,
     required Color color,
   }) {
+    final textStyles = context.textStyles;
+    final colors = context.colors;
+
     return Column(
       children: [
         SizedBox(
@@ -246,10 +285,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                   Text(
                     unit,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 10,
-                      color: AppColors.textMuted,
+                      color: colors.textMuted,
                     ),
                   ),
                 ],
@@ -258,12 +297,15 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 8),
-        Text(label, style: AppTextStyles.labelSmall),
+        Text(label, style: textStyles.labelSmall),
       ],
     );
   }
 
   Widget _buildAIRecommendationBanner(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     return GestureDetector(
       onTap: () => Navigator.pushNamed(
         context,
@@ -273,15 +315,11 @@ class HomeScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF0099BB), Color(0xFF7C3AED)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: colors.chatAiGradient,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: AppColors.primary.withOpacity(0.2),
+              color: colors.primary.withOpacity(0.2),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -306,19 +344,19 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Aura Recommends',
-                    style: AppTextStyles.labelSmall.copyWith(
+                    style: textStyles.labelSmall.copyWith(
                       color: Colors.white.withOpacity(0.7),
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Full Body HIIT • 32 min',
-                    style: AppTextStyles.h4.copyWith(color: Colors.white),
+                    style: textStyles.h4.copyWith(color: Colors.white),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     'Based on your sleep & recovery data',
-                    style: AppTextStyles.bodySmall.copyWith(
+                    style: textStyles.bodySmall.copyWith(
                       color: Colors.white.withOpacity(0.65),
                     ),
                   ),
@@ -334,37 +372,40 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildQuickActions(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     final actions = [
       _QuickAction(
         label: 'AI Coach',
         icon: Icons.auto_awesome_rounded,
-        color: AppColors.primary,
+        color: colors.primary,
         route: AppRoutes.aiCoachChat,
       ),
       _QuickAction(
         label: 'Workouts',
         icon: Icons.fitness_center_rounded,
-        color: AppColors.secondary,
+        color: colors.secondary,
         route: AppRoutes.workoutLibrary,
       ),
       _QuickAction(
         label: 'Progress',
         icon: Icons.bar_chart_rounded,
-        color: AppColors.accentGreen,
+        color: colors.accentGreen,
         route: AppRoutes.analytics,
       ),
       _QuickAction(
-        label: 'My Plan',
-        icon: Icons.calendar_month_rounded,
-        color: AppColors.accentOrange,
-        route: AppRoutes.aiPlanGeneration,
+        label: 'Log',
+        icon: Icons.edit_note_rounded,
+        color: colors.accentOrange,
+        route: AppRoutes.activityLogger,
       ),
     ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Quick Actions', style: AppTextStyles.h3),
+        Text('Quick Actions', style: textStyles.h3),
         const SizedBox(height: 14),
         Row(
           children: actions
@@ -399,7 +440,7 @@ class HomeScreen extends StatelessWidget {
                             const SizedBox(height: 6),
                             Text(
                               e.value.label,
-                              style: AppTextStyles.labelSmall
+                              style: textStyles.labelSmall
                                   .copyWith(color: e.value.color),
                             ),
                           ],
@@ -415,14 +456,57 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildSchedule(BuildContext context) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Upcoming', style: textStyles.h3),
+        const SizedBox(height: 12),
+        GlassCard(
+          onTap: () => Navigator.pushNamed(context, AppRoutes.reminders),
+          child: Column(
+            children: [
+              _scheduleRow(context, '7:00 AM', 'Upper Strength', 'Today'),
+              Divider(color: colors.border, height: 20),
+              _scheduleRow(context, '6:30 PM', 'Mobility flow', 'Tomorrow'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _scheduleRow(
+    BuildContext context,
+    String time,
+    String title,
+    String when,
+  ) {
+    return Row(
+      children: [
+        Text(time, style: context.textStyles.labelMedium),
+        const SizedBox(width: 12),
+        Expanded(child: Text(title, style: context.textStyles.labelLarge)),
+        Text(when,
+            style: context.textStyles.caption
+                .copyWith(color: context.colors.textMuted)),
+      ],
+    );
+  }
+
   Widget _buildWorkoutCard(BuildContext context, Workout workout) {
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
     final categoryColors = {
-      WorkoutCategory.hiit: AppColors.accentOrange,
-      WorkoutCategory.strength: AppColors.secondary,
-      WorkoutCategory.cardio: AppColors.primary,
-      WorkoutCategory.yoga: AppColors.accentGreen,
+      WorkoutCategory.hiit: colors.accentOrange,
+      WorkoutCategory.strength: colors.secondary,
+      WorkoutCategory.cardio: colors.primary,
+      WorkoutCategory.yoga: colors.accentGreen,
     };
-    final color = categoryColors[workout.category] ?? AppColors.primary;
+    final color = categoryColors[workout.category] ?? colors.primary;
 
     return GestureDetector(
       onTap: () => Navigator.pushNamed(context, AppRoutes.workoutDetail,
@@ -430,9 +514,9 @@ class HomeScreen extends StatelessWidget {
       child: Container(
         width: 180,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: colors.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.border),
+          border: Border.all(color: colors.border),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -489,24 +573,24 @@ class HomeScreen extends StatelessWidget {
                 children: [
                   Text(
                     workout.title,
-                    style: AppTextStyles.labelLarge,
+                    style: textStyles.labelLarge,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 6),
                   Row(
                     children: [
-                      const Icon(Icons.timer_outlined,
-                          color: AppColors.textMuted, size: 12),
+                      Icon(Icons.timer_outlined,
+                          color: colors.textMuted, size: 12),
                       const SizedBox(width: 3),
                       Text('${workout.durationMinutes}m',
-                          style: AppTextStyles.caption),
+                          style: textStyles.caption),
                       const SizedBox(width: 10),
-                      const Icon(Icons.local_fire_department_outlined,
-                          color: AppColors.textMuted, size: 12),
+                      Icon(Icons.local_fire_department_outlined,
+                          color: colors.textMuted, size: 12),
                       const SizedBox(width: 3),
                       Text('${workout.calories} kcal',
-                          style: AppTextStyles.caption),
+                          style: textStyles.caption),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -514,7 +598,7 @@ class HomeScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(
                         horizontal: 8, vertical: 4),
                     decoration: BoxDecoration(
-                      color: AppColors.primary.withOpacity(0.1),
+                      color: colors.primary.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -523,7 +607,7 @@ class HomeScreen extends StatelessWidget {
                         fontFamily: 'Inter',
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
-                        color: AppColors.primary,
+                        color: colors.primary,
                       ),
                     ),
                   ),

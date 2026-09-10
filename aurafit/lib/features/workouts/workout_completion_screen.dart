@@ -39,6 +39,28 @@ class WorkoutCompletionScreen extends StatelessWidget {
                         .animate()
                         .fadeIn(delay: 600.ms)
                         .slideY(begin: 0.1),
+                    const SizedBox(height: 16),
+                    GlassCard(
+                      child: Row(
+                        children: [
+                          Icon(Icons.emoji_events_rounded,
+                              color: AppColors.accentOrange),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('New PR', style: AppTextStyles.h4),
+                                Text(
+                                  'Goblet squat · 20 reps. Aura says: keep that depth.',
+                                  style: AppTextStyles.bodySmall,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ).animate().fadeIn(delay: 700.ms),
                     const SizedBox(height: 24),
                     // Rating
                     _buildRatingSection()
@@ -49,7 +71,28 @@ class WorkoutCompletionScreen extends StatelessWidget {
                     GradientButton(
                       label: '🎉  Share Achievement',
                       gradient: AppColors.greenGradient,
-                      onTap: () {},
+                      onTap: () {
+                        showModalBottomSheet(
+                          context: context,
+                          builder: (context) => SafeArea(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.link_rounded),
+                                  title: const Text('Copy recap link'),
+                                  onTap: () => Navigator.pop(context),
+                                ),
+                                ListTile(
+                                  leading: const Icon(Icons.ios_share_rounded),
+                                  title: const Text('Share to social'),
+                                  onTap: () => Navigator.pop(context),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ).animate().fadeIn(delay: 900.ms),
                     const SizedBox(height: 12),
                     SizedBox(
@@ -58,7 +101,7 @@ class WorkoutCompletionScreen extends StatelessWidget {
                       child: OutlinedButton(
                         onPressed: () => Navigator.pushNamedAndRemoveUntil(
                           context,
-                          AppRoutes.home,
+                          AppRoutes.main,
                           (r) => false,
                         ),
                         child: Text('Back to Home',

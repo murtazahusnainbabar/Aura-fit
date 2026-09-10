@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import '../../core/auth/auth_provider.dart';
 import '../../core/theme/theme_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
@@ -18,13 +19,10 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final UserProfile _user = UserProfile.demo;
   bool _notificationsEnabled = true;
-  bool _darkMode = true;
   String _units = 'Metric';
 
   @override
   Widget build(BuildContext context) {
-    final isDark = context.watch<ThemeProvider>().isDarkMode;
-
     return Scaffold(
       backgroundColor: context.colors.background,
       body: SafeArea(
@@ -72,7 +70,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         .animate()
                         .fadeIn(delay: 400.ms),
                     const SizedBox(height: 24),
-                    // Danger zone
+                    Text('Achievements', style: context.textStyles.h4),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 10,
+                      children: const [
+                        _Badge(Icons.local_fire_department, '7-day streak'),
+                        _Badge(Icons.fitness_center, '100 workouts'),
+                        _Badge(Icons.nightlight, 'Sleep club'),
+                        _Badge(Icons.water_drop, 'Hydration'),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
                     _buildDangerZone()
                         .animate()
                         .fadeIn(delay: 500.ms),
@@ -99,10 +109,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               gradient: context.colors.cyanPurpleGradient,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: const Center(
+            child: Center(
               child: Text(
-                'AC',
-                style: TextStyle(
+                context.watch<AuthProvider>().user?.initials ?? 'AF',
+                style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
@@ -118,7 +128,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Row(
                   children: [
-                    Text(_user.name, style: context.textStyles.h3),
+                    Text(
+                      context.watch<AuthProvider>().user?.name ?? _user.name,
+                      style: context.textStyles.h3,
+                    ),
                     const SizedBox(width: 8),
                     if (_user.membershipTier == 'pro')
                       Container(
@@ -142,7 +155,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(_user.email,
+                Text(
+                    context.watch<AuthProvider>().user?.email ?? _user.email,
                     style: context.textStyles.bodySmall
                         .copyWith(color: context.colors.textMuted)),
                 const SizedBox(height: 8),
@@ -343,7 +357,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               Expanded(
                   child: Text('Dark Mode', style: context.textStyles.labelLarge)),
               Switch.adaptive(
-                value: isDark,
+                value: context.watch<ThemeProvider>().isDarkMode,
                 onChanged: (v) => context.read<ThemeProvider>().toggleTheme(),
                 activeColor: context.colors.primary,
               ),
@@ -391,6 +405,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
             context.colors.accentOrange,
             () => Navigator.pushNamed(context, AppRoutes.subscription),
           ),
+          Divider(height: 20),
+          _buildTileButton(
+            Icons.settings_rounded,
+            'App settings & integrations',
+            'Theme, Health sync, privacy',
+            context.colors.primary,
+            () => Navigator.pushNamed(context, AppRoutes.settings),
+          ),
+          Divider(height: 20),
+          _buildTileButton(
+            Icons.alarm_rounded,
+            'Reminders',
+            'Workouts, hydration, bedtime',
+            context.colors.secondary,
+            () => Navigator.pushNamed(context, AppRoutes.reminders),
+          ),
         ],
       ),
     );
@@ -430,9 +460,47 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  Future<void> _confirmSignOut() async {
+    final shouldSignOut = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          backgroundColor: context.colors.surface,
+          title: Text('Sign out?', style: context.textStyles.h3),
+          content: Text(
+            'You can always sign back in with the same email.',
+            style: context.textStyles.bodyMedium.copyWith(
+              color: context.colors.textSecondary,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(
+                'Sign out',
+                style: TextStyle(color: context.colors.accentRed),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+    if (shouldSignOut != true || !mounted) return;
+    await context.read<AuthProvider>().logout();
+    if (!mounted) return;
+    Navigator.of(context).pushNamedAndRemoveUntil(
+      AppRoutes.welcome,
+      (_) => false,
+    );
+  }
+
   Widget _buildDangerZone() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _confirmSignOut,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16),
@@ -453,6 +521,36 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     .copyWith(color: context.colors.accentRed)),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _Badge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _Badge(this.icon, this.label);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 72,
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 6),
+      decoration: BoxDecoration(
+        color: context.colors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: context.colors.border),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, color: context.colors.primary, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: context.textStyles.caption,
+          ),
+        ],
       ),
     );
   }

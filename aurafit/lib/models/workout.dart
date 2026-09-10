@@ -35,6 +35,7 @@ class WorkoutCategory {
   static const String hiit = 'HIIT';
   static const String yoga = 'Yoga';
   static const String mobility = 'Mobility';
+  static const String recovery = 'Recovery';
 }
 
 // Sample data
@@ -93,15 +94,16 @@ class WorkoutData {
       targetMuscles: ['Full Body', 'Flexibility'],
     ),
     Workout(
-      id: '5',
-      title: 'Athletic Rebuild',
-      category: WorkoutCategory.cardio,
-      durationMinutes: 30,
-      calories: 380,
-      difficulty: 'Intermediate',
-      equipment: 'No Equipment',
+      id: '6',
+      title: 'Reset & Recover',
+      category: WorkoutCategory.recovery,
+      durationMinutes: 20,
+      calories: 90,
+      difficulty: 'Beginner',
+      equipment: 'Mat',
       imageUrl: '',
-      targetMuscles: ['Legs', 'Cardio'],
+      targetMuscles: ['Hips', 'Spine', 'Recovery'],
+      isFeatured: true,
     ),
   ];
 }
