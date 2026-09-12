@@ -6,7 +6,7 @@ import '../../core/constants/app_routes.dart';
 import '../../core/onboarding/onboarding_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../auth/widgets/auth_widgets.dart';
+import 'package:aurafit/features/auth/widgets/auth_widgets.dart';
 
 class PermissionsSetupScreen extends StatelessWidget {
   const PermissionsSetupScreen({super.key});

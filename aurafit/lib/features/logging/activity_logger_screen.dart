@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/wellness/wellness_provider.dart';
-import '../auth/widgets/auth_widgets.dart';
+import 'package:aurafit/features/auth/widgets/auth_widgets.dart';
 
 class ActivityLoggerScreen extends StatefulWidget {
   const ActivityLoggerScreen({super.key});
