@@ -19,7 +19,9 @@ String destinationAfterSplash({
   required AuthProvider auth,
   required OnboardingProvider onboarding,
 }) {
-  if (!auth.isLoggedIn) return AppRoutes.welcome;
+  if (!auth.isLoggedIn) {
+    return onboarding.hasSeenWelcome ? AppRoutes.login : AppRoutes.welcome;
+  }
   if (!onboarding.isComplete) return AppRoutes.personalization;
   return AppRoutes.main;
 }

@@ -1,126 +1,114 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
-import '../../core/auth/auth_navigation.dart';
-import '../../core/auth/auth_provider.dart';
 import '../../core/constants/app_routes.dart';
 import '../../core/onboarding/onboarding_provider.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
-import '../../core/widgets/app_logo.dart';
-import '../auth/widgets/auth_widgets.dart';
+import '../../core/widgets/custom_button.dart';
 
-class WelcomeScreen extends StatefulWidget {
+class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
 
-  @override
-  State<WelcomeScreen> createState() => _WelcomeScreenState();
-}
+  void _onGetStarted(BuildContext context) {
+    context.read<OnboardingProvider>().setSeenWelcome();
+    Navigator.pushNamed(context, AppRoutes.login);
+  }
 
-class _WelcomeScreenState extends State<WelcomeScreen> {
-  bool _socialLoading = false;
-
-  Future<void> _social(String provider) async {
-    setState(() => _socialLoading = true);
-    try {
-      await context.read<AuthProvider>().loginWithSocial(provider);
-      if (!mounted) return;
-      await context.read<OnboardingProvider>().completeOnboarding();
-      if (!mounted) return;
-      HapticFeedback.mediumImpact();
-      await navigateAfterAuth(context);
-    } finally {
-      if (mounted) setState(() => _socialLoading = false);
-    }
+  void _onRegister(BuildContext context) {
+    context.read<OnboardingProvider>().setSeenWelcome();
+    Navigator.pushNamed(context, AppRoutes.signup);
   }
 
   @override
   Widget build(BuildContext context) {
-    return AuthScaffold(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(24, 24, 24, 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const AppLogo(size: 64)
-                .animate()
-                .fadeIn()
-                .scale(begin: const Offset(0.9, 0.9)),
-            const Spacer(),
-            Text(
-              'Your AI coach.\nEvery workout.\nEvery day.',
-              style: context.textStyles.displayLarge.copyWith(height: 1.15),
-            ).animate().fadeIn(delay: 120.ms).slideY(begin: 0.08),
-            const SizedBox(height: 12),
-            Text(
-              'Personalized training, recovery, and nutrition — driven by an agent that actually knows you.',
-              style: context.textStyles.bodyLarge.copyWith(
-                color: context.colors.textSecondary,
-              ),
-            ),
-            const Spacer(),
-            AuthPrimaryButton(
-              label: 'Get Started',
-              onPressed: () =>
-                  Navigator.pushNamed(context, AppRoutes.personalization),
-            ),
-            const SizedBox(height: 12),
-            _SocialButton(
-              icon: Icons.apple,
-              label: 'Continue with Apple',
-              loading: _socialLoading,
-              onTap: () => _social('apple'),
-            ),
-            const SizedBox(height: 10),
-            _SocialButton(
-              icon: Icons.g_mobiledata_rounded,
-              label: 'Continue with Google',
-              loading: _socialLoading,
-              onTap: () => _social('google'),
-            ),
-            const SizedBox(height: 8),
-            Center(
-              child: TextButton(
-                onPressed: () => Navigator.pushNamed(context, AppRoutes.login),
-                child: Text(
-                  'I already have an account',
-                  style: context.textStyles.labelLarge.copyWith(
-                    color: context.colors.primary,
+    final colors = context.colors;
+    final textStyles = context.textStyles;
+
+    return Scaffold(
+      backgroundColor: colors.background,
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 20.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              // Subtitle
+              Text(
+                'Build. Break. Benchmark.',
+                style: textStyles.labelLarge.copyWith(
+                  color: const Color(0xFFC6FF00), // Lime green from image
+                  letterSpacing: 0.5,
+                ),
+              ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2),
+
+              const SizedBox(height: 12),
+
+              // Title
+              Text(
+                'Ready to Crush Your\nGoals?',
+                textAlign: TextAlign.center,
+                style: textStyles.displayLarge.copyWith(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w800,
+                  height: 1.2,
+                ),
+              ).animate().fadeIn(delay: 200.ms, duration: 600.ms),
+
+              const Spacer(),
+
+              // Main Image Placeholder
+              // In a real app, this would be an Image.asset or similar
+              Container(
+                height: 380,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  color: colors.surface,
+                  image: const DecorationImage(
+                    image: NetworkImage(
+                      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=1000&auto=format&fit=crop',
+                    ),
+                    fit: BoxFit.cover,
                   ),
                 ),
-              ),
-            ),
-          ],
+              ).animate().fadeIn(delay: 400.ms, duration: 800.ms).scale(begin: const Offset(0.9, 0.9)),
+
+              const Spacer(),
+
+              // Primary Button
+              CustomButton(
+                label: 'Start Unleashing Your Potential',
+                onTap: () => _onGetStarted(context),
+              ).animate().fadeIn(delay: 600.ms, duration: 600.ms).slideY(begin: 0.2),
+
+              const SizedBox(height: 24),
+
+              // Register Link
+              RichText(
+                text: TextSpan(
+                  style: textStyles.bodyMedium.copyWith(color: colors.textSecondary),
+                  children: [
+                    const TextSpan(text: "Don't have any account? "),
+                    TextSpan(
+                      text: 'Register Now',
+                      style: textStyles.labelLarge.copyWith(
+                        color: colors.textPrimary,
+                        fontWeight: FontWeight.w700,
+                      ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () => _onRegister(context),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(delay: 800.ms, duration: 600.ms),
+
+              const SizedBox(height: 10),
+            ],
+          ),
         ),
-      ),
-    );
-  }
-}
-
-class _SocialButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool loading;
-  final VoidCallback onTap;
-
-  const _SocialButton({
-    required this.icon,
-    required this.label,
-    required this.loading,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: double.infinity,
-      height: 54,
-      child: OutlinedButton.icon(
-        onPressed: loading ? null : onTap,
-        icon: Icon(icon, size: 22),
-        label: Text(label),
       ),
     );
   }

@@ -74,11 +74,13 @@ class OnboardingProfile {
 class OnboardingProvider extends ChangeNotifier {
   static const _key = 'aurafit_onboarding';
   static const _completeKey = 'aurafit_onboarding_complete';
+  static const _welcomeSeenKey = 'aurafit_welcome_seen';
   static const _permissionsKey = 'aurafit_permissions';
   static const _biometricKey = 'aurafit_biometric_enabled';
 
   OnboardingProfile _profile = const OnboardingProfile();
   bool _complete = false;
+  bool _welcomeSeen = false;
   bool _notifications = false;
   bool _health = false;
   bool _camera = false;
@@ -88,6 +90,7 @@ class OnboardingProvider extends ChangeNotifier {
 
   OnboardingProfile get profile => _profile;
   bool get isComplete => _complete;
+  bool get hasSeenWelcome => _welcomeSeen;
   bool get notificationsGranted => _notifications;
   bool get healthGranted => _health;
   bool get cameraGranted => _camera;
@@ -108,6 +111,7 @@ class OnboardingProvider extends ChangeNotifier {
       );
     }
     _complete = prefs.getBool(_completeKey) ?? false;
+    _welcomeSeen = prefs.getBool(_welcomeSeenKey) ?? false;
     final perm = prefs.getString(_permissionsKey);
     if (perm != null) {
       final map = jsonDecode(perm) as Map<String, dynamic>;
@@ -164,8 +168,16 @@ class OnboardingProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> setSeenWelcome() async {
+    _welcomeSeen = true;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_welcomeSeenKey, true);
+    notifyListeners();
+  }
+
   Future<void> resetForNewUser() async {
     _complete = false;
+    _welcomeSeen = false;
     _profile = const OnboardingProfile();
     _notifications = false;
     _health = false;
@@ -175,6 +187,7 @@ class OnboardingProvider extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_key);
     await prefs.setBool(_completeKey, false);
+    await prefs.setBool(_welcomeSeenKey, false);
     await prefs.remove(_permissionsKey);
     await prefs.setBool(_biometricKey, false);
     notifyListeners();
