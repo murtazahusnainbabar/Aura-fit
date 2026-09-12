@@ -39,8 +39,10 @@ class WelcomeScreen extends StatelessWidget {
               Text(
                 'Build. Break. Benchmark.',
                 style: textStyles.labelLarge.copyWith(
-                  color: const Color(0xFFC6FF00), // Lime green from image
+                  fontFamily: 'Syne', // Specifically ensure Syne for this accent text
+                  color: const Color(0xFFC6FF00),
                   letterSpacing: 0.5,
+                  fontWeight: FontWeight.w700,
                 ),
               ).animate().fadeIn(duration: 600.ms).slideY(begin: -0.2),
 

@@ -1,16 +1,13 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/auth/auth_navigation.dart';
-import '../../core/onboarding/onboarding_provider.dart';
 import '../../core/auth/auth_provider.dart';
 import '../../core/constants/app_routes.dart';
-import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_text_styles.dart';
 import '../../core/widgets/app_logo.dart';
-import 'auth_validators.dart';
+import '../../core/widgets/custom_button.dart';
 import 'widgets/auth_widgets.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -23,11 +20,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _obscure = true;
   bool _loading = false;
-  String? _emailError;
-  String? _passwordError;
-  String? _formError;
 
   @override
   void dispose() {
@@ -36,26 +29,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _fillDemo() {
-    setState(() {
-      _emailController.text = AuthProvider.demoEmail;
-      _passwordController.text = AuthProvider.demoPassword;
-      _emailError = null;
-      _passwordError = null;
-      _formError = null;
-    });
-  }
-
   Future<void> _submit() async {
-    final emailError = AuthValidators.email(_emailController.text);
-    final passwordError = AuthValidators.password(_passwordController.text);
-    setState(() {
-      _emailError = emailError;
-      _passwordError = passwordError;
-      _formError = null;
-    });
-    if (emailError != null || passwordError != null) return;
-
     setState(() => _loading = true);
     try {
       await context.read<AuthProvider>().login(
@@ -63,16 +37,7 @@ class _LoginScreenState extends State<LoginScreen> {
             password: _passwordController.text,
           );
       if (!mounted) return;
-      if (_emailController.text.trim().toLowerCase() ==
-          AuthProvider.demoEmail) {
-        await context.read<OnboardingProvider>().completeOnboarding();
-      }
-      if (!mounted) return;
-      HapticFeedback.mediumImpact();
       await navigateAfterAuth(context);
-    } on AuthException catch (e) {
-      if (!mounted) return;
-      setState(() => _formError = e.message);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -80,168 +45,98 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final textStyles = context.textStyles;
+
     return AuthScaffold(
-      child: AutofillGroup(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 24),
-          physics: const BouncingScrollPhysics(),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 12),
-              const AppLogo(size: 56)
-                  .animate()
-                  .fadeIn(duration: 400.ms)
-                  .scale(begin: const Offset(0.9, 0.9)),
-              const SizedBox(height: 28),
-              Text('Welcome back', style: context.textStyles.displayMedium)
-                  .animate()
-                  .fadeIn(delay: 80.ms)
-                  .slideY(begin: 0.08),
-              const SizedBox(height: 8),
-              Text(
-                'Sign in to pick up your training exactly where you left off.',
-                style: context.textStyles.bodyMedium.copyWith(
-                  color: context.colors.textSecondary,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          children: [
+            const SizedBox(height: 60),
+            const AppLogo(size: 80),
+            const SizedBox(height: 32),
+            Text(
+              'Welcome Back',
+              style: textStyles.displayLarge.copyWith(fontSize: 32),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Sign in to access personalized, AI-powered fitness insights tailored for you.',
+              textAlign: TextAlign.center,
+              style: textStyles.bodyMedium.copyWith(color: Colors.white70),
+            ),
+            const SizedBox(height: 48),
+            AuthTextField(
+              controller: _emailController,
+              hint: 'Email',
+              prefixIcon: const Icon(Icons.email_outlined, color: Colors.white60),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 20),
+            AuthTextField(
+              controller: _passwordController,
+              hint: 'Password',
+              obscureText: true,
+              prefixIcon: const Icon(Icons.lock_outline, color: Colors.white60),
+            ),
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerRight,
+              child: TextButton(
+                onPressed: () => Navigator.pushNamed(context, AppRoutes.forgotPassword),
+                child: Text(
+                  'Forgot Password?',
+                  style: textStyles.labelLarge.copyWith(color: Colors.white70),
                 ),
               ),
-              const SizedBox(height: 28),
-              AuthTextField(
-                controller: _emailController,
-                label: 'Email',
-                hint: 'you@email.com',
-                keyboardType: TextInputType.emailAddress,
-                autofillHints: const [AutofillHints.email],
-                prefixIcon: const Icon(Icons.mail_outline_rounded),
-                errorText: _emailError,
-                onChanged: (_) {
-                  if (_emailError != null) {
-                    setState(() => _emailError = null);
-                  }
-                },
-              ),
-              const SizedBox(height: 16),
-              AuthTextField(
-                controller: _passwordController,
-                label: 'Password',
-                hint: 'Your password',
-                obscureText: _obscure,
-                textInputAction: TextInputAction.done,
-                autofillHints: const [AutofillHints.password],
-                prefixIcon: const Icon(Icons.lock_outline_rounded),
-                suffix: IconButton(
-                  onPressed: () => setState(() => _obscure = !_obscure),
-                  icon: Icon(
-                    _obscure
-                        ? Icons.visibility_outlined
-                        : Icons.visibility_off_outlined,
-                  ),
-                  tooltip: _obscure ? 'Show password' : 'Hide password',
-                ),
-                errorText: _passwordError,
-                onChanged: (_) {
-                  if (_passwordError != null) {
-                    setState(() => _passwordError = null);
-                  }
-                },
-                onSubmitted: _submit,
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: TextButton(
-                  onPressed: () => Navigator.pushNamed(
-                    context,
-                    AppRoutes.forgotPassword,
-                  ),
+            ),
+            const SizedBox(height: 32),
+            CustomButton(
+              label: 'Login',
+              onTap: _submit,
+              isLoading: _loading,
+            ),
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(child: Divider(color: Colors.white.withOpacity(0.1))),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
-                    'Forgot password?',
-                    style: context.textStyles.labelLarge.copyWith(
-                      color: context.colors.primary,
-                    ),
+                    'Or Sign in with',
+                    style: textStyles.bodySmall.copyWith(color: Colors.white38),
                   ),
                 ),
-              ),
-              if (_formError != null) ...[
-                _ErrorBanner(message: _formError!),
-                const SizedBox(height: 16),
+                Expanded(child: Divider(color: Colors.white.withOpacity(0.1))),
               ],
-              AuthPrimaryButton(
-                label: 'Sign in',
-                isLoading: _loading,
-                onPressed: _loading ? null : _submit,
-              ),
-              const SizedBox(height: 16),
-              Center(
-                child: TextButton(
-                  onPressed: _fillDemo,
-                  child: Text(
-                    'Use demo account',
-                    style: context.textStyles.labelLarge.copyWith(
-                      color: context.colors.secondary,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+            ),
+            const SizedBox(height: 32),
+            SocialAuthButton(
+              label: 'Continue with Google',
+              onTap: () {},
+              iconPath: 'google',
+            ),
+            const SizedBox(height: 48),
+            RichText(
+              text: TextSpan(
+                style: textStyles.bodyMedium.copyWith(color: Colors.white70),
                 children: [
-                  Text(
-                    'New to AuraFit?',
-                    style: context.textStyles.bodyMedium.copyWith(
-                      color: context.colors.textSecondary,
+                  const TextSpan(text: "Don't have any account? "),
+                  TextSpan(
+                    text: 'Register Now',
+                    style: textStyles.labelLarge.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
                     ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pushNamed(
-                      context,
-                      AppRoutes.signup,
-                    ),
-                    child: Text(
-                      'Create account',
-                      style: context.textStyles.labelLarge.copyWith(
-                        color: context.colors.primary,
-                      ),
-                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => Navigator.pushReplacementNamed(context, AppRoutes.signup),
                   ),
                 ],
               ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _ErrorBanner extends StatelessWidget {
-  final String message;
-  const _ErrorBanner({required this.message});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: context.colors.accentRed.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: context.colors.accentRed.withOpacity(0.35)),
-      ),
-      child: Row(
-        children: [
-          Icon(Icons.error_outline_rounded,
-              color: context.colors.accentRed, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Text(
-              message,
-              style: context.textStyles.bodySmall.copyWith(
-                color: context.colors.accentRed,
-              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

@@ -101,88 +101,88 @@ class AppTextStylesExtension extends ThemeExtension<AppTextStylesExtension> {
 
   factory AppTextStylesExtension.fromColors(AppColorsExtension colors) {
     return AppTextStylesExtension(
-      displayLarge: GoogleFonts.inter(
+      displayLarge: GoogleFonts.syne(
         fontSize: 32,
         fontWeight: FontWeight.w800,
         color: colors.textPrimary,
         letterSpacing: -0.5,
       ),
-      displayMedium: GoogleFonts.inter(
+      displayMedium: GoogleFonts.syne(
         fontSize: 26,
         fontWeight: FontWeight.w700,
         color: colors.textPrimary,
         letterSpacing: -0.3,
       ),
-      h1: GoogleFonts.inter(
+      h1: GoogleFonts.syne(
         fontSize: 24,
         fontWeight: FontWeight.w700,
         color: colors.textPrimary,
         letterSpacing: -0.3,
       ),
-      h2: GoogleFonts.inter(
+      h2: GoogleFonts.syne(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: colors.textPrimary,
         letterSpacing: -0.2,
       ),
-      h3: GoogleFonts.inter(
+      h3: GoogleFonts.syne(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         color: colors.textPrimary,
       ),
-      h4: GoogleFonts.inter(
+      h4: GoogleFonts.syne(
         fontSize: 16,
         fontWeight: FontWeight.w600,
         color: colors.textPrimary,
       ),
-      bodyLarge: GoogleFonts.inter(
+      bodyLarge: GoogleFonts.dmSans(
         fontSize: 16,
         fontWeight: FontWeight.w400,
         color: colors.textPrimary,
         height: 1.5,
       ),
-      bodyMedium: GoogleFonts.inter(
+      bodyMedium: GoogleFonts.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w400,
         color: colors.textPrimary,
         height: 1.5,
       ),
-      bodySmall: GoogleFonts.inter(
+      bodySmall: GoogleFonts.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w400,
         color: colors.textSecondary,
         height: 1.4,
       ),
-      labelLarge: GoogleFonts.inter(
+      labelLarge: GoogleFonts.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: colors.textPrimary,
         letterSpacing: 0.1,
       ),
-      labelMedium: GoogleFonts.inter(
+      labelMedium: GoogleFonts.dmSans(
         fontSize: 12,
         fontWeight: FontWeight.w600,
         color: colors.textSecondary,
         letterSpacing: 0.5,
       ),
-      labelSmall: GoogleFonts.inter(
+      labelSmall: GoogleFonts.dmSans(
         fontSize: 10,
         fontWeight: FontWeight.w500,
         color: colors.textMuted,
         letterSpacing: 0.5,
       ),
-      caption: GoogleFonts.inter(
+      caption: GoogleFonts.dmSans(
         fontSize: 11,
         fontWeight: FontWeight.w400,
         color: colors.textMuted,
       ),
-      button: GoogleFonts.inter(
+      button: GoogleFonts.dmSans(
         fontSize: 16,
         fontWeight: FontWeight.w700,
         color: colors.background,
         letterSpacing: 0.2,
       ),
-      buttonSmall: GoogleFonts.inter(
+      buttonSmall: GoogleFonts.dmSans(
         fontSize: 14,
         fontWeight: FontWeight.w600,
         color: colors.background,

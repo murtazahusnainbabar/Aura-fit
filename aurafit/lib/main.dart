@@ -13,6 +13,7 @@ import 'core/widgets/state_views.dart';
 import 'main_screen.dart';
 
 import 'features/auth/forgot_password_screen.dart';
+import 'features/auth/reset_password_screen.dart';
 import 'features/auth/login_screen.dart';
 import 'features/auth/signup_screen.dart';
 import 'features/auth/splash_screen.dart';
@@ -96,6 +97,8 @@ class AuraFitApp extends StatelessWidget {
             AppRoutes.signup: (context) => const SignupScreen(),
             AppRoutes.forgotPassword: (context) =>
                 const ForgotPasswordScreen(),
+            AppRoutes.resetPassword: (context) =>
+                const ResetPasswordScreen(),
             AppRoutes.main: (context) => const MainScreen(),
             AppRoutes.home: (context) => const HomeScreen(),
             AppRoutes.workoutLibrary: (context) =>
